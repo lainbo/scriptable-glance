@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{SERVICE}} · Scriptable 布局预览</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 38px; background: #e8ede8; color: #20382c; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; }
+    h1 { font-size: 22px; letter-spacing: -.5px; margin: 0 0 8px; }
+    p { font-size: 12px; color: #5b7164; margin: 0 0 30px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 190px); gap: 28px 20px; }
+    .card { width: 190px; }
+    .frame { width: 158px; height: 158px; border-radius: 22px; overflow: hidden; box-shadow: 0 6px 18px #253b3010; }
+    .label { margin-top: 10px; font-size: 11px; color: #54685a; }
+    .stack, .widget { display: flex; min-width: 0; flex-shrink: 0; }
+    .widget { width: 100%; height: 100%; flex-direction: column; align-items: stretch; }
+    .text { line-height: 1.16; white-space: nowrap; min-width: 0; flex-shrink: 0; letter-spacing: -.15px; }
+    .image { min-width: 0; display: block; object-fit: contain; flex-shrink: 0; }
+    .spacer { min-width: 0; min-height: 0; }
+    .stack.column > .stack.row { width: 100%; }
+    .tune { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; margin: -14px 0 28px; font-size: 12px; color: #20382c; }
+    .tune label { display: flex; align-items: center; gap: 10px; }
+    .tune span { color: #5b7164; }
+    .tune input { width: 180px; }
+    .tune output { font-variant-numeric: tabular-nums; min-width: 44px; }
+    .footer { margin-top: 30px; font-size: 11px; color: #64766a; max-width: 800px; line-height: 1.8; }
+    @media (max-width: 850px) {
+      .grid { grid-template-columns: repeat(2, 190px); }
+    }
+  </style>
+</head>
+<body>
+  <h1>{{SERVICE}} · 订阅额度</h1>
+  <p>2×2 小组件布局预览 · 示例数据 · 依据 Scriptable 脚本的布局调用近似绘制</p>
+  <div class="tune">
+    <label>浅色 Logo 不透明度 <input data-theme="light" type="range" min="0" max="0.3" step="0.005"><output></output></label>
+    <label>深色 Logo 不透明度 <input data-theme="dark" type="range" min="0" max="0.3" step="0.005"><output></output></label>
+    <span>仅调整预览，初始值取自脚本</span>
+  </div>
+  <div class="grid"></div>
+  <div class="footer">预览尺寸为 158 × 158。这里用浏览器近似呈现原生布局；iPhone 上的字体、系统边距和刷新时机会以 Scriptable 与 iOS 为准。时间统一采用台北时间。右下角背景 Logo {{LOGO_NOTE}}，背景按脚本运行时的主题生成。点击刷新需安装脚本后在 iPhone 上验证。</div>
+
+  <script id="cases" type="application/json">{{CASES}}</script>
+  <script>
+    const cases = JSON.parse(document.getElementById('cases').textContent);
+    const sliders = {};
+    document.querySelectorAll('.tune input').forEach(input => { sliders[input.dataset.theme] = input; });
+
+    function background(svg, theme) {
+      const tuned = svg.replace(/(<path [^>]*fill-opacity=")[^"]*/g, '$1' + sliders[theme].value);
+      return 'url("data:image/svg+xml,' + encodeURIComponent(tuned) + '")';
+    }
+
+    function render(n, theme, parentDirection = 'column') {
+      const el = document.createElement(n.type === 'image' ? 'img' : 'div');
+      el.className = n.type;
+      if (n.type === 'widget') el.style.colorScheme = theme;
+      const color = c => typeof c === 'object' ? c[theme] : c;
+
+      if (n.type === 'text') {
+        el.textContent = n.text;
+        el.style.fontSize = n.font.size + 'px';
+        if (n.font.family) el.style.fontFamily = n.font.family;
+        el.style.fontWeight = { regular: 400, medium: 500, semibold: 600, bold: 700 }[n.font.weight] || 400;
+        el.style.color = color(n.textColor);
+        el.style.textAlign = n.textAlign || 'left';
+      }
+      if (n.type === 'image') {
+        el.src = n.src;
+        el.style.maxWidth = '100%';
+        el.style.maxHeight = '100%';
+      }
+      if (n.type === 'spacer') {
+        if (n.length !== undefined) {
+          el.style.flex = '0 0 ' + n.length + 'px';
+        } else {
+          el.style.flex = '1 1 0';
+          el.style[parentDirection === 'row' ? 'minWidth' : 'minHeight'] = '8px';
+        }
+      }
+      if (n.type === 'stack' || n.type === 'widget') {
+        const direction = n.direction || 'column';
+        el.classList.add(direction);
+        el.style.flexDirection = direction;
+        el.style.alignItems = n.type === 'widget' ? 'stretch' : ({ start: 'flex-start', end: 'flex-end', center: 'center' }[n.alignItems] || 'center');
+        el.style.gap = (n.gap || 0) + 'px';
+        if (n.type === 'stack' && parentDirection === 'column') el.style.width = '100%';
+        (n.children || []).forEach(c => el.appendChild(render(c, theme, direction)));
+      }
+      if (n.width) el.style.width = n.width + 'px';
+      if (n.height) el.style.height = n.height + 'px';
+      if (n.borderRadius !== undefined) el.style.borderRadius = n.borderRadius + 'px';
+      if (n.backgroundColor) el.style.backgroundColor = color(n.backgroundColor);
+      if (n.backgroundSVG) {
+        el.dataset.svg = n.backgroundSVG;
+        el.dataset.theme = theme;
+        el.style.backgroundImage = background(n.backgroundSVG, theme);
+        el.style.backgroundSize = '100% 100%';
+      }
+      if (n.padding !== undefined) el.style.padding = Array.isArray(n.padding) ? n.padding.map(v => v + 'px').join(' ') : n.padding + 'px';
+      if (n.flex) el.style.flex = n.flex + ' 1 0';
+      if (n.opacity !== undefined) el.style.opacity = n.opacity;
+      return el;
+    }
+
+    for (const input of Object.values(sliders)) {
+      const output = input.nextElementSibling;
+      input.value = cases.find(c => c.theme === input.dataset.theme).widget.backgroundSVG.match(/<path [^>]*fill-opacity="([^"]*)"/)[1];
+      output.textContent = input.value;
+      input.addEventListener('input', () => {
+        output.textContent = input.value;
+        document.querySelectorAll('[data-svg][data-theme="' + input.dataset.theme + '"]').forEach(el => {
+          el.style.backgroundImage = background(el.dataset.svg, input.dataset.theme);
+        });
+      });
+    }
+
+    for (const c of cases) {
+      const card = document.createElement('section');
+      card.className = 'card';
+      const frame = document.createElement('div');
+      frame.className = 'frame';
+      frame.appendChild(render(c.widget, c.theme));
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = c.label;
+      card.append(frame, label);
+      document.querySelector('.grid').append(card);
+    }
+
+    const size = Number(new URL(location.href).searchParams.get('size')) || 158;
+    if ([141, 155, 158, 170].includes(size)) {
+      document.querySelectorAll('.frame').forEach(f => { f.style.width = size + 'px'; f.style.height = size + 'px'; });
+      const footer = document.querySelector('.footer');
+      footer.textContent = footer.textContent.replace('158 × 158', size + ' × ' + size);
+    }
+  </script>
+</body>
+</html>
