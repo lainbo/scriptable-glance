@@ -25,6 +25,9 @@
     .tune input { width: 180px; }
     .tune output { font-variant-numeric: tabular-nums; min-width: 44px; }
     .footer { margin-top: 30px; font-size: 11px; color: #64766a; max-width: 800px; line-height: 1.8; }
+    .nav { display: flex; gap: 20px; margin-top: 16px; font-size: 12px; }
+    .nav a { color: #20382c; }
+    .nav a[aria-current] { font-weight: 600; text-decoration: none; cursor: default; }
     @media (max-width: 850px) {
       .grid { grid-template-columns: repeat(2, 190px); }
     }
@@ -40,6 +43,7 @@
   </div>
   <div class="grid"></div>
   <div class="footer">预览尺寸为 158 × 158。这里用浏览器近似呈现原生布局；iPhone 上的字体、系统边距和刷新时机会以 Scriptable 与 iOS 为准。时间统一采用台北时间。右下角背景 Logo {{LOGO_NOTE}}，背景按脚本运行时的主题生成。点击刷新需安装脚本后在 iPhone 上验证。</div>
+  <nav class="nav">{{NAV}}</nav>
 
   <script id="cases" type="application/json">{{CASES}}</script>
   <script>

@@ -130,7 +130,7 @@ function claudeCases(now) {
   ];
 }
 
-function buildPreview(service, title, logoNote, samples) {
+function buildPreview(service, title, logoNote, samples, nav) {
   const source = fs.readFileSync(path.join(root, `widgets/${service}/${title} Usage.js`), 'utf8').replace(/await main\(\);\s*$/, '');
   const appearance = { dark: false };
   const context = vm.createContext(environment({
@@ -146,7 +146,7 @@ function buildPreview(service, title, logoNote, samples) {
   });
   const data = JSON.stringify(cases, null, 2).replace(/</g, '\\u003c');
   const html = fs.readFileSync(path.join(root, 'tools/preview-template.html'), 'utf8')
-    .replaceAll('{{SERVICE}}', title).replaceAll('{{LOGO_NOTE}}', logoNote)
+    .replaceAll('{{SERVICE}}', title).replaceAll('{{LOGO_NOTE}}', logoNote).replace('{{NAV}}', nav)
     .replace('{{CASES}}', () => data);
   fs.mkdirSync(path.join(root, 'previews'), { recursive: true });
   fs.writeFileSync(path.join(root, `previews/${service}.html`), html);
@@ -155,6 +155,13 @@ function buildPreview(service, title, logoNote, samples) {
 
 module.exports = { environment, tree };
 if (require.main === module) {
-  buildPreview('chatgpt', 'ChatGPT', '浅色黑、深色白', chatgptCases);
-  buildPreview('claude', 'Claude', '两种主题都使用官方 Clay 色', claudeCases);
+  const services = [
+    ['chatgpt', 'ChatGPT', '浅色黑、深色白', chatgptCases],
+    ['claude', 'Claude', '两种主题都使用官方 Clay 色', claudeCases],
+  ];
+  for (const [service, title, logoNote, samples] of services) {
+    const nav = services.map(([other, otherTitle]) =>
+      `<a href="${other}.html"${other === service ? ' aria-current="page"' : ''}>${otherTitle}</a>`).join('');
+    buildPreview(service, title, logoNote, samples, nav);
+  }
 }
