@@ -307,12 +307,11 @@ function resetText(ms, now) {
   if (ms == null) return '尚未开始计时';
   const delta = ms - now;
   if (delta <= 0) return '重置待确认';
-  if (delta < 24 * 60 * MINUTE) {
-    const minutes = Math.ceil(delta / MINUTE);
-    return `重置 ${Math.floor(minutes / 60)}小时${String(minutes % 60).padStart(2, '0')}分`;
-  }
-  const parts = taipeiParts(ms);
-  return `重置 ${parts.date} ${parts.time}`;
+  const minutes = Math.ceil(delta / MINUTE);
+  const days = Math.floor(minutes / (24 * 60));
+  const hours = Math.floor(minutes / 60) % 24;
+  const pad = value => String(value).padStart(2, '0');
+  return `重置：${days ? `${days}天${pad(hours)}` : hours}小时${pad(minutes % 60)}分`;
 }
 
 function updateText(cache, now) {
@@ -435,7 +434,7 @@ function addWindow(widget, window, compact, now, stale) {
 
 function nextRefreshAt(state, now) {
   const boundaries = (state.cache?.windows || [])
-    .flatMap(window => window.resetsAt ? [window.resetsAt - 24 * 60 * MINUTE, window.resetsAt] : [])
+    .map(window => window.resetsAt)
     .filter(boundary => boundary > now)
     .map(boundary => boundary + 1000);
   return Math.min(now + REFRESH_INTERVAL, ...boundaries);
