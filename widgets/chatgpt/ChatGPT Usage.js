@@ -422,7 +422,7 @@ function addWindow(widget, window, compact, now, stale) {
   line.addSpacer();
   addText(line, `${Number(window.usedPercent.toFixed(1))}%`, compact ? 15 : 28, color, 'semibold');
   widget.addSpacer(compact ? 1 : 4);
-  addProgress(widget, window.usedPercent, stale, color, compact ? 6 : 20);
+  addProgress(widget, window.usedPercent, stale, color, compact ? 9 : 20);
   widget.addSpacer(compact ? 1 : 5);
   addText(widget, resetText(window.resetsAt, now), compact ? 9 : 10, COLOR.muted);
 }
