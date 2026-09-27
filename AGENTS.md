@@ -49,6 +49,7 @@
 node --input-type=module --check < "widgets/chatgpt/ChatGPT Usage.js"
 node --input-type=module --check < "widgets/claude/Claude Usage.js"
 node tools/render-preview.cjs
+npm run dev   # 实时预览：保存后自动重新生成并刷新 http://127.0.0.1:8768/claude.html
 ```
 
 - 样式变化检查 158 与 170 点预览、单/双周期、深浅色、94.9%/95% 和错误状态。HTML 是近似布局，不是原生渲染证明。

@@ -1,0 +1,7 @@
+{
+  "name": "scriptable-glance",
+  "private": true,
+  "scripts": {
+    "dev": "node tools/preview-server.cjs"
+  }
+}

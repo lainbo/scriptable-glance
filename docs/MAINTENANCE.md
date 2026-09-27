@@ -125,6 +125,8 @@ node tools/render-preview.cjs
 
 `render-preview.cjs` 只读取本地脚本和模板，使用 Node 标准库，不读取凭据。
 
+调整样式时用 `npm run dev`（即 `node tools/preview-server.cjs`）实时预览。它同样只用 Node 标准库，在 `127.0.0.1:8768` 提供 `previews/` 中的页面；监听 `widgets/` 下的脚本、`render-preview.cjs` 与 `preview-template.html`，保存后在子进程中运行 `render-preview.cjs`，成功后通知已打开的页面刷新。自动刷新脚本只加在服务返回的页面中，生成的 `previews/` 文件与直接运行 `render-preview.cjs` 的结果相同。
+
 图标源文件为 `assets/openai-blossom.svg`，取自 [OpenAI 品牌页](https://openai.com/brand/)下载的 `OAI_OpenAI-Blossom_Black.svg`。脚本中的 `LOGO_PATH` 是该文件 `path` 元素的 `d` 属性原文，`LOGO_BOUNDS` 是图形在 716×716 原画布中的边界（180.5 起，边长 354.67）。`logoPath()` 只解析绝对坐标的 `M`、`L`、`H`、`V`、`C`、`Z` 指令，对应 Scriptable `Path` 的 `move`、`addLine`、`addCurve` 与 `closeSubpath`；更换图标时先确认路径不含圆弧、二次曲线或相对坐标指令，并重新计算图形边界。官方路径不设 `fill-rule`，与 iOS 默认的非零环绕填充一致。
 
 Claude 图标源文件为 `assets/claude-spark.svg`，取自 [Anthropic 媒体资源包](https://www.anthropic.com/press-kit)中 Clay 色的 Claude Spark，原填充色 `#D97757`。`LOGO_PATH` 同样是 `path` 的 `d` 属性原文，只含 `M`、`L`、`H`、`V`、`C`、`Z` 绝对坐标指令；`LOGO_BOUNDS` 是图形在 94×94 原画布中的边界（(0.3999, 0.2002) 起，边长 93.6）。

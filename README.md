@@ -38,7 +38,9 @@ assets/
 tools/
   render-preview.cjs             根据脚本布局生成浏览器预览
   preview-template.html          预览页面模板
+  preview-server.cjs             实时预览服务，文件保存后重新生成并刷新页面
 previews/<service>.html          生成的布局预览
+package.json                     实时预览命令 npm run dev，无 npm 依赖
 ```
 
 ## 本地维护
@@ -51,13 +53,15 @@ node --input-type=module --check < "widgets/claude/Claude Usage.js"
 node tools/render-preview.cjs
 ```
 
-用浏览器打开 `previews/chatgpt.html` 或 `previews/claude.html` 查看示例数据。页面上方的滑块可临时调整浅色、深色背景 Logo 的不透明度，确定数值后改脚本顶部的常量并重新生成。也可启动本地预览：
+用浏览器打开 `previews/chatgpt.html` 或 `previews/claude.html` 查看示例数据。页面上方的滑块可临时调整浅色、深色背景 Logo 的不透明度，确定数值后改脚本顶部的常量并重新生成。
+
+调整样式时可启动实时预览服务：
 
 ```sh
-python3 -m http.server 8768 --bind 127.0.0.1 --directory previews
+npm run dev
 ```
 
-打开 `http://127.0.0.1:8768/chatgpt.html` 或 `claude.html`，加上 `?size=170` 查看 Pro Max 尺寸。浏览器预览不运行登录或读取真实凭据，字体与系统行为以 iPhone 为准。
+打开 `http://127.0.0.1:8768/claude.html` 或 `chatgpt.html`，加上 `?size=170` 查看 Pro Max 尺寸。服务启动时先生成一次预览；之后保存 `widgets/` 下的脚本、`tools/render-preview.cjs` 或 `tools/preview-template.html`，会自动重新生成 `previews/` 并刷新已打开的页面。生成出错时终端显示错误，页面保留上一次的结果。浏览器预览不运行登录或读取真实凭据，字体与系统行为以 iPhone 为准。
 
 ## 当前验证状态
 
