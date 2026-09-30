@@ -94,12 +94,12 @@ function tree(n) {
 }
 
 function chatgptCases(now) {
-  const week = { planType: 'prolite', windows: [{ usedPercent: 95, duration: 604800, resetsAt: now + 74940000 }], fetchedAt: now };
+  const week = { planType: 'prolite', windows: [{ usedPercent: 95, duration: 604800, resetsAt: now + 6 * 86400000 }], fetchedAt: now };
   const dual = { planType: 'plus', windows: [{ usedPercent: 94.9, duration: 18000, resetsAt: now + 7980000 },
     { usedPercent: 95, duration: 604800, resetsAt: now + 262800000 }], fetchedAt: now };
   const nextWeek = { ...week, windows: [{ usedPercent: 0, duration: 604800, resetsAt: now + 604800000 }] };
   return [
-    ['仅 Weekly · 95%', 'light', { cache: week }],
+    ['仅 Weekly · 跨周星期不同 · 95%', 'light', { cache: week }],
     ['双周期 · 94.9% / 95%', 'light', { cache: dual }],
     ['深色模式 · 95%', 'dark', { cache: week }],
     ['双周期深色 · 94.9% / 95%', 'dark', { cache: dual }],
@@ -115,7 +115,7 @@ function chatgptCases(now) {
 function claudeCases(now) {
   const pro = { planType: 'claude_pro', rateLimitTier: 'default_claude_ai', fetchedAt: now,
     windows: [{ usedPercent: 21, duration: 18000, resetsAt: now + 8940000 },
-      { usedPercent: 6, duration: 604800, resetsAt: now + 330000000 }] };
+      { usedPercent: 6, duration: 604800, resetsAt: now + 6 * 86400000 }] };
   const max = { planType: 'claude_max', rateLimitTier: 'default_claude_max_20x', fetchedAt: now,
     windows: [{ usedPercent: 94.9, duration: 18000, resetsAt: now + 7980000 },
       { usedPercent: 95, duration: 604800, resetsAt: now + 262800000 }] };
@@ -125,7 +125,7 @@ function claudeCases(now) {
   const nextWeek = { ...pro, windows: [pro.windows[0],
     { usedPercent: 0, duration: 604800, resetsAt: now + 604800000 }] };
   return [
-    ['Pro · 21% / 6%', 'light', { cache: pro }],
+    ['Pro · 跨周星期不同 · 21% / 6%', 'light', { cache: pro }],
     ['Max 20x · 94.9% / 95%', 'light', { cache: max }],
     ['深色模式 · Pro', 'dark', { cache: pro }],
     ['深色模式 · 94.9% / 95%', 'dark', { cache: max }],

@@ -312,9 +312,7 @@ function resetText(ms, now, duration) {
     const offset = 8 * 60 * MINUTE;
     const current = new Date(now + offset);
     const reset = new Date(ms + offset);
-    const nextMonday = Date.UTC(current.getUTCFullYear(), current.getUTCMonth(),
-      current.getUTCDate() + 7 - (current.getUTCDay() + 6) % 7);
-    const week = reset.getTime() >= nextMonday ? 'Next ' : '';
+    const week = reset.getUTCDay() === current.getUTCDay() && delta >= 24 * 60 * MINUTE ? 'Next ' : '';
     const day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][reset.getUTCDay()];
     return `重置: ${week}${day} ${taipeiParts(ms).time}`;
   }
