@@ -302,6 +302,7 @@ function taipeiParts(ms) {
 function resetText(ms, now, duration) {
   const delta = ms - now;
   if (delta <= 0) return '重置待确认';
+  if (duration === 18000) return `重置: ${taipeiParts(ms).time}`;
   if (duration === 604800) {
     const offset = 8 * 60 * MINUTE;
     const current = new Date(now + offset);
