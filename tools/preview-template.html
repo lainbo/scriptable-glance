@@ -65,6 +65,7 @@
       if (n.type === 'text') {
         el.textContent = n.text;
         el.style.fontSize = n.font.size + 'px';
+        el.dataset.minimumScaleFactor = n.minimumScaleFactor ?? 1;
         if (n.font.family) el.style.fontFamily = n.font.family;
         el.style.fontWeight = { regular: 400, medium: 500, semibold: 600, bold: 700 }[n.font.weight] || 400;
         el.style.color = color(n.textColor);
@@ -139,6 +140,12 @@
       const footer = document.querySelector('.footer');
       footer.textContent = footer.textContent.replace('158 × 158', size + ' × ' + size);
     }
+
+    document.querySelectorAll('.text').forEach(el => {
+      if (el.scrollWidth <= el.clientWidth) return;
+      const scale = Math.max(Number(el.dataset.minimumScaleFactor), el.clientWidth / (el.scrollWidth + 1));
+      el.style.fontSize = parseFloat(el.style.fontSize) * scale + 'px';
+    });
   </script>
 </body>
 </html>

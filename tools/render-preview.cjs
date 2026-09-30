@@ -77,7 +77,8 @@ function cssColor(c) {
 }
 function tree(n) {
   const out = { type: n.type };
-  if (n.type === 'text') Object.assign(out, { text: n.text, font: n.font, textColor: cssColor(n.textColor) });
+  if (n.type === 'text') Object.assign(out, { text: n.text, font: n.font, textColor: cssColor(n.textColor),
+    minimumScaleFactor: n.minimumScaleFactor });
   if (n.type === 'image') Object.assign(out, { src: drawingURL(n.image), fit: true });
   if (n.type === 'spacer' && n.length != null) out.length = n.length;
   if (n.type === 'widget' || n.type === 'stack') Object.assign(out, {
@@ -96,11 +97,14 @@ function chatgptCases(now) {
   const week = { planType: 'prolite', windows: [{ usedPercent: 95, duration: 604800, resetsAt: now + 74940000 }], fetchedAt: now };
   const dual = { planType: 'plus', windows: [{ usedPercent: 94.9, duration: 18000, resetsAt: now + 7980000 },
     { usedPercent: 95, duration: 604800, resetsAt: now + 262800000 }], fetchedAt: now };
+  const nextWeek = { ...week, windows: [{ usedPercent: 0, duration: 604800, resetsAt: now + 604800000 }] };
   return [
     ['仅 Weekly · 95%', 'light', { cache: week }],
     ['双周期 · 94.9% / 95%', 'light', { cache: dual }],
     ['深色模式 · 95%', 'dark', { cache: week }],
     ['双周期深色 · 94.9% / 95%', 'dark', { cache: dual }],
+    ['Weekly 刚重置 · 七天后', 'light', { cache: nextWeek }],
+    ['Weekly 刚重置 · 七天后 · 深色', 'dark', { cache: nextWeek }],
     ['登录已过期', 'dark', { cache: { ...dual, fetchedAt: now - 86400000 }, error: { kind: 'expired' } }],
     ['网络异常保留原时间', 'light', { cache: { ...week, fetchedAt: now - 7200000 }, error: { kind: 'network' } }],
     ['首次登录 · 点按打开授权流程', 'light', { cache: null, needsLogin: true }],
@@ -118,11 +122,15 @@ function claudeCases(now) {
   const idle = { planType: 'claude_max', rateLimitTier: 'default_claude_max_5x', fetchedAt: now,
     windows: [{ usedPercent: 0, duration: 18000, resetsAt: null },
       { usedPercent: 42, duration: 604800, resetsAt: now + 74940000 }] };
+  const nextWeek = { ...pro, windows: [pro.windows[0],
+    { usedPercent: 0, duration: 604800, resetsAt: now + 604800000 }] };
   return [
     ['Pro · 21% / 6%', 'light', { cache: pro }],
     ['Max 20x · 94.9% / 95%', 'light', { cache: max }],
     ['深色模式 · Pro', 'dark', { cache: pro }],
     ['深色模式 · 94.9% / 95%', 'dark', { cache: max }],
+    ['Weekly 刚重置 · 七天后', 'light', { cache: nextWeek }],
+    ['Weekly 刚重置 · 七天后 · 深色', 'dark', { cache: nextWeek }],
     ['5h 尚未开始计时 · Max 5x', 'light', { cache: idle }],
     ['登录已过期', 'dark', { cache: { ...max, fetchedAt: now - 86400000 }, error: { kind: 'expired' } }],
     ['网络异常保留原时间', 'light', { cache: { ...pro, fetchedAt: now - 7200000 }, error: { kind: 'network' } }],
@@ -138,7 +146,7 @@ function buildPreview(service, title, logoNote, samples, nav) {
     URLScheme: { forRunningScript: () => `scriptable:///run/${title}%20Usage` },
   }));
   vm.runInContext(source, context);
-  const now = Date.parse('2026-09-18T19:20:00+08:00');
+  const now = Date.parse('2026-09-30T15:35:00+08:00');
   const cases = samples(now).map(([label, theme, state]) => {
     appearance.dark = theme === 'dark';
     context.input = state; context.now = now;

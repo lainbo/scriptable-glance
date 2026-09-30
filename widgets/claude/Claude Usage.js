@@ -302,16 +302,26 @@ function taipeiParts(ms) {
     time: `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}` };
 }
 
-function resetText(ms, now) {
+function resetText(ms, now, duration) {
   // 窗口内尚无用量时接口不返回重置时间，计时从下一次使用开始。
   if (ms == null) return '尚未开始计时';
   const delta = ms - now;
   if (delta <= 0) return '重置待确认';
+  if (duration === 604800) {
+    const offset = 8 * 60 * MINUTE;
+    const current = new Date(now + offset);
+    const reset = new Date(ms + offset);
+    const nextMonday = Date.UTC(current.getUTCFullYear(), current.getUTCMonth(),
+      current.getUTCDate() + 7 - (current.getUTCDay() + 6) % 7);
+    const week = reset.getTime() >= nextMonday ? 'Next ' : '';
+    const day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][reset.getUTCDay()];
+    return `重置: ${week}${day} ${taipeiParts(ms).time}`;
+  }
   const minutes = Math.ceil(delta / MINUTE);
   const days = Math.floor(minutes / (24 * 60));
   const hours = Math.floor(minutes / 60) % 24;
   const pad = value => String(value).padStart(2, '0');
-  return `重置：${days ? `${days}天${pad(hours)}` : hours}小时${pad(minutes % 60)}分`;
+  return `重置: ${days ? `${days}天${pad(hours)}` : hours}小时${pad(minutes % 60)}分`;
 }
 
 function updateText(cache, now) {
@@ -429,7 +439,7 @@ function addWindow(widget, window, compact, now, stale) {
   widget.addSpacer(compact ? 1 : 4);
   addProgress(widget, window.usedPercent, stale, color, compact ? 9 : 20);
   widget.addSpacer(compact ? 1 : 5);
-  addText(widget, resetText(window.resetsAt, now), compact ? 9 : 10, COLOR.muted);
+  addText(widget, resetText(window.resetsAt, now, window.duration), compact ? 9 : 10, COLOR.muted);
 }
 
 function nextRefreshAt(state, now) {
